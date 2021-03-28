@@ -12,7 +12,7 @@ This project is in TypeScript, it provides a simplified way to define custom com
 
 #### The long version
 
-I don't know about you, but when I want to make a CLI, it's to get something _done_. A quick and dirty script proves useful enough to warrant evolution. A process or resource needs to be codified for structured interactions. Typically, I chose a language I'm proficient in, my company has domain knowledge with, something that requires minimal overhead for consumers to install and run, will work on macOS / Windows / Linux, and finally, a language with a large ecosystem and supporting packages that make writing a program more of stacking up a bunch of blocks.
+I don't know about you, but when I want to make a CLI, it's to get something _done_. A quick and dirty script proves useful enough to warrant evolution. A process or resource needs to be codified for structured interactions. Typically, I choose a language I'm proficient in, my company has domain knowledge with, something that requires minimal overhead for consumers to install and run, will work on macOS / Windows / Linux, and finally, a language with a large ecosystem and supporting packages that make writing a program more of stacking up a bunch of blocks.
 
 Luckily, the future is now and a good number of languages meet this criteria. I still find myself reaching for JS/TS when the primary goal is minimal development time.
 
