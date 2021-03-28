@@ -2,6 +2,8 @@
   "name": "@simple-cli/base",
   "version": "0.0.0-managed-by-semantic-release",
   "description": "A simple CLI framework",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
