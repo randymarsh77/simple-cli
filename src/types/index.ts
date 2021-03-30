@@ -35,7 +35,12 @@ export interface ICommand<T> {
 }
 
 export interface IPlugin<TArgs, TResult> {
-	execute: (args: TArgs) => TResult;
+	execute: (args: TArgs, options: any) => TResult;
+}
+
+export interface IPluginWithOptions<TOptions, TArgs, TResult> {
+	definitions: OptionDefinition[];
+	execute: (args: TArgs, options: TOptions) => TResult;
 }
 
 interface IPluggableOptions<TPluginArgs, TPluginResult> {

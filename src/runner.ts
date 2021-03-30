@@ -1,6 +1,7 @@
 import createOptions from 'command-line-args';
 import commands from 'command-line-commands';
 import { configureCLIContext } from './context';
+import { shared } from './options';
 import { createCLI } from './utility';
 import { ICLIDefinition } from './types';
 
@@ -11,16 +12,24 @@ export const runCLI = async (definition: ICLIDefinition) => {
 
 		const cli = createCLI(definition);
 		const { command, argv } = commands([null, ...Object.keys(cli)]);
+
+		const pluginOption = '--plugin';
+		let plugin: any = null;
+		if (argv.includes(pluginOption)) {
+			const pluginIndex = argv.indexOf(pluginOption);
+			const moduleName = argv[pluginIndex + 1];
+			const module = await import(moduleName); // eslint-disable-line
+			plugin = module?.execute ? module : module?.default;
+		}
+
 		const cmd = cli[command || 'null'];
+		const optionDefinitions = [...shared, ...cmd.definitions, ...(plugin?.definitions ?? [])];
 		const options = {
 			...((cmd.populateOptions && cmd.populateOptions()) || {}),
-			...createOptions(cmd.definitions, { argv }),
+			...((plugin.populateOptions && plugin.populateOptions()) || {}),
+			...createOptions(optionDefinitions, { argv }),
+			plugin,
 		};
-
-		if (options.plugin) {
-			const plugin = await import(options.plugin); // eslint-disable-line
-			options.plugin = plugin;
-		}
 
 		const context = { argv, cli, options };
 		isDebug = options.debug;
