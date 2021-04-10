@@ -10,7 +10,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src --ext .ts",
-    "build": "rimraf dist && yarn lint && tsc"
+    "build": "rimraf dist && yarn lint && tsc",
+    "build-example": "cd example && yarn build",
+    "run-example": "node ./example/dist/example/src/index.js",
+    "bex": "yarn build-example && yarn run-example",
+    "ex": "yarn run-example"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,4 @@
 import createUsage from 'command-line-usage';
-import { options } from '../options/global';
 import { ICommandInvocation } from '../types';
 
 const name = 'help';
@@ -8,7 +7,7 @@ const summary = 'Get some help for a command.';
 export const createHelpCommand = (toolName: string) => ({
 	name,
 	summary,
-	definitions: [...options],
+	definitions: [],
 	usage: [
 		{
 			header: `${toolName} ${name}`,

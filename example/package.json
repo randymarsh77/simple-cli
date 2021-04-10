@@ -1,0 +1,20 @@
+{
+  "name": "example-cli",
+  "version": "0.0.1",
+  "description": "A demo CLI using @simple-cli/base",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./src --ext .ts",
+    "build": "rimraf dist && yarn lint && tsc"
+  },
+  "author": "randymarsh77",
+  "license": "MIT",
+  "dependencies": {
+    "@simple-cli/base": "file:../"
+  },
+  "devDependencies": {
+    "eslint": "^7.23.0",
+    "typescript": "^4.2.3"
+  }
+}

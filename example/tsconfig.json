@@ -3,16 +3,13 @@
     "target": "ES2015",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": true
-  },
-  "exclude": [
-    "example"
-  ]
+    "declaration": true,
+    "sourceMap": true,
+  }
 }

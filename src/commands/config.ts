@@ -30,21 +30,19 @@ const resolveConfig = (): IConfig => {
 	if (!cache.config) {
 		const { name } = useCLIContext();
 		const configFileName = path.join(os.homedir(), `.${name}`);
-		if (fs.existsSync(configFileName)) {
-			const data = fs.readFileSync(configFileName, 'utf8');
-			const saved = JSON.parse(data) as IConfig;
-			const config = {
-				currentProfile: saved?.currentProfile ?? 'default',
-				profiles: {
-					...(saved?.profiles ?? {}),
-					default: {
-						aliases: saved?.profiles?.default?.aliases ?? {},
-						defaults: saved?.profiles?.default?.defaults ?? {},
-					},
+		const data = fs.existsSync(configFileName) && fs.readFileSync(configFileName, 'utf8');
+		const saved = ((data && JSON.parse(data)) || {}) as IConfig;
+		const config = {
+			currentProfile: saved?.currentProfile ?? 'default',
+			profiles: {
+				...(saved?.profiles ?? {}),
+				default: {
+					aliases: saved?.profiles?.default?.aliases ?? {},
+					defaults: saved?.profiles?.default?.defaults ?? {},
 				},
-			};
-			cache.config = config;
-		}
+			},
+		};
+		cache.config = config;
 	}
 
 	return cache.config as IConfig;
@@ -55,7 +53,13 @@ const updateConfig = (updated: IConfig) => {
 	const { name } = useCLIContext();
 	const configFileName = path.join(os.homedir(), `.${name}`);
 	const data = JSON.stringify(updated, null, '  ');
-	fs.writeFileSync(configFileName, data, 'w');
+	fs.writeFileSync(configFileName, data, 'utf8');
+};
+
+export const getActiveAliases = () => {
+	const { currentProfile, profiles } = resolveConfig();
+	const profile = profiles[currentProfile] || profiles.default;
+	return Object.keys(profile.aliases).map((k) => [k, profile.aliases[k]]);
 };
 
 export const getOptionDefault = (option: string) => {
@@ -83,12 +87,18 @@ const options = [
 		type: String,
 		description: 'Set an alias.',
 	},
+	{
+		name: 'delete',
+		type: Boolean,
+		description: 'Delete the associate value.',
+	},
 ];
 
 interface IConfigOptions {
-	profile: string;
-	default: string;
-	alias: string;
+	profile?: string;
+	default?: string;
+	alias?: string;
+	delete?: boolean;
 }
 
 export const createConfigCommand = (toolName: string): ICommand<IConfigOptions> => ({
@@ -110,12 +120,28 @@ export const createConfigCommand = (toolName: string): ICommand<IConfigOptions> 
 		const profileKey = options.profile || 'default';
 		const profile = config.profiles[profileKey] || { aliases: {}, defaults: {} };
 		if (options.alias) {
-			const [alias, value] = options.alias.split('=').map((x) => x.trim());
-			profile.aliases[alias] = value;
+			if (options.alias.includes('=')) {
+				const [alias, value] = options.alias.split('=').map((x) => x.trim());
+				profile.aliases[alias] = value;
+			} else if (options.delete) {
+				const { alias } = options;
+				delete profile.aliases[alias];
+			} else {
+				const { alias } = options;
+				const value = profile.aliases[alias];
+				console.log(`Alias '${alias}' ${value ? `: '${value}'` : 'is not set'}`);
+			}
 		}
 		if (options.default) {
-			const [option, value] = options.default.split('=').map((x) => x.trim());
-			profile.defaults[option] = value;
+			if (options.default.includes('=')) {
+				const [option, value] = options.default.split('=').map((x) => x.trim());
+				profile.defaults[option] = value;
+			} else if (options.delete) {
+				delete profile.defaults[options.default];
+			} else {
+				const value = profile.defaults[options.default];
+				console.log(`Default '${options.default}' ${value ? `: '${value}'` : 'is not set'}`);
+			}
 		}
 
 		updateConfig({
