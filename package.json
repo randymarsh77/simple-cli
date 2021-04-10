@@ -30,7 +30,6 @@
     "@types/command-line-commands": "^2.0.1",
     "@types/command-line-usage": "^5.0.1",
     "@types/node": "^14.14.37",
-    "@types/timestring": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "eslint": "^7.22.0",
@@ -45,7 +44,6 @@
   "dependencies": {
     "command-line-args": "^5.1.1",
     "command-line-commands": "^3.0.2",
-    "command-line-usage": "^6.1.1",
-    "moment": "^2.29.1"
+    "command-line-usage": "^6.1.1"
   }
 }
