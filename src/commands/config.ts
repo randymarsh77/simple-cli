@@ -62,6 +62,12 @@ export const getActiveAliases = () => {
 	return Object.keys(profile.aliases).map((k) => [k, profile.aliases[k]]);
 };
 
+export const getActiveDefaults = () => {
+	const { currentProfile, profiles } = resolveConfig();
+	const profile = profiles[currentProfile] || profiles.default;
+	return profile.defaults;
+};
+
 export const getOptionDefault = (option: string) => {
 	const { currentProfile, profiles } = resolveConfig();
 	const profile = profiles[currentProfile] || profiles.default;

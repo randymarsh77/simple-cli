@@ -1,10 +1,17 @@
-import createOptions from 'command-line-args';
+import createOptions, { OptionDefinition } from 'command-line-args';
 import commands from 'command-line-commands';
-import { getActiveAliases } from './commands/config';
+import { getActiveAliases, getActiveDefaults } from './commands/config';
 import { configureCLIContext } from './context';
 import { shared } from './options';
 import { createCLI } from './utility';
 import { ICLIDefinition } from './types';
+
+const expand = (value: string, aliases: string[][]) =>
+	value &&
+	aliases.reduce((acc, v) => {
+		const [alias, replacement] = v;
+		return acc.replace(alias, replacement);
+	}, value);
 
 export const runCLI = async (definition: ICLIDefinition) => {
 	let isDebug = false;
@@ -14,19 +21,14 @@ export const runCLI = async (definition: ICLIDefinition) => {
 
 		// Don't support alias expansion for config command, or you can't read/set aliases.
 		const skipAliasExpansion = process.argv.length >= 3 && process.argv[2] === 'config';
+		const aliases = getActiveAliases();
 		if (!skipAliasExpansion) {
-			const aliases = getActiveAliases();
 			process.argv = process.argv.map((x, i) => {
 				if (i <= 1) {
 					return x;
 				}
 
-				const expanded = aliases.reduce((acc, v) => {
-					const [alias, replacement] = v;
-					return acc.replace(alias, replacement);
-				}, x);
-
-				return expanded;
+				return expand(x, aliases);
 			});
 		}
 
@@ -42,7 +44,15 @@ export const runCLI = async (definition: ICLIDefinition) => {
 		}
 
 		const cmd = cli[command || 'null'];
-		const optionDefinitions = [...shared, ...cmd.definitions, ...(plugin?.definitions ?? [])];
+		const defaults = getActiveDefaults();
+		const optionDefinitions = [
+			...shared,
+			...cmd.definitions,
+			...((plugin?.definitions ?? []) as OptionDefinition[]),
+		].map((x) => {
+			x.defaultValue = expand(defaults[x.name], aliases) ?? x.defaultValue;
+			return x;
+		});
 		const options = {
 			...((cmd.populateOptions && cmd.populateOptions()) || {}),
 			...((plugin?.populateOptions && plugin.populateOptions()) || {}),
