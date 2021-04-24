@@ -13,6 +13,11 @@ const expand = (value: string, aliases: string[][]) =>
 		return acc.replace(alias, replacement);
 	}, value);
 
+const loadPlugin = async (moduleName: string) => {
+	const module = await import(moduleName); // eslint-disable-line
+	return module?.execute ? module : module?.default;
+};
+
 export const runCLI = async (definition: ICLIDefinition) => {
 	let isDebug = false;
 	try {
@@ -34,17 +39,24 @@ export const runCLI = async (definition: ICLIDefinition) => {
 
 		const { command, argv } = commands([null, ...Object.keys(cli)]);
 
+		let pluginModuleName: string | null = null;
+
+		// Try to load plugin from arguments
 		const pluginOption = '--plugin';
-		let plugin: any = null;
 		if (argv.includes(pluginOption)) {
 			const pluginIndex = argv.indexOf(pluginOption);
-			const moduleName = argv[pluginIndex + 1];
-			const module = await import(moduleName); // eslint-disable-line
-			plugin = module?.execute ? module : module?.default;
+			pluginModuleName = expand(argv[pluginIndex + 1], aliases);
 		}
 
-		const cmd = cli[command || 'null'];
+		// Try to load plugin from defaults
 		const defaults = getActiveDefaults();
+		if (!pluginModuleName && defaults['plugin']) {
+			pluginModuleName = expand(defaults['plugin'], aliases);
+		}
+
+		const plugin = pluginModuleName && (await loadPlugin(pluginModuleName));
+
+		const cmd = cli[command || 'null'];
 		const optionDefinitions = [
 			...shared,
 			...cmd.definitions,
