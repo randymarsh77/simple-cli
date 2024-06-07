@@ -1,6 +1,4 @@
 import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import { useCLIContext } from '../context';
 import { ICommand } from '../types';
 
@@ -28,9 +26,8 @@ interface ICachedConfig {
 const cache: ICachedConfig = {};
 const resolveConfig = (): IConfig => {
 	if (!cache.config) {
-		const { name } = useCLIContext();
-		const configFileName = path.join(os.homedir(), `.${name}`);
-		const data = fs.existsSync(configFileName) && fs.readFileSync(configFileName, 'utf8');
+		const { configFile } = useCLIContext();
+		const data = fs.existsSync(configFile) && fs.readFileSync(configFile, 'utf8');
 		const saved = ((data && JSON.parse(data)) || {}) as IConfig;
 		const config = {
 			currentProfile: saved?.currentProfile ?? 'default',
@@ -50,10 +47,9 @@ const resolveConfig = (): IConfig => {
 
 const updateConfig = (updated: IConfig) => {
 	cache.config = updated;
-	const { name } = useCLIContext();
-	const configFileName = path.join(os.homedir(), `.${name}`);
+	const { configFile } = useCLIContext();
 	const data = JSON.stringify(updated, null, '  ');
-	fs.writeFileSync(configFileName, data, 'utf8');
+	fs.writeFileSync(configFile, data, 'utf8');
 };
 
 export const getActiveAliases = () => {

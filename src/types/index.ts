@@ -6,6 +6,10 @@ export interface ICLIDefinition {
 	version: string;
 	summary: string;
 	commands: ICommand<any>[];
+	/**
+	 * Default settings file is `~/.name`. If `useDataDirectory` is true, the default settings file is `~/.name/name.json`.
+	 */
+	useDataDirectory?: boolean;
 }
 
 export interface ICLI {
